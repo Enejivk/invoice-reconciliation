@@ -97,16 +97,19 @@ Open `http://localhost:3000`. You can create a tenant, upload "bank data," and w
 ## 💬 Design Decisions (Q&A)
 
 ### Why PostgreSQL instead of SQLite?
+
 ---
 
 I went with **PostgreSQL** because it's built for multi-tenant apps. It gives us Row-Level Security (RLS) and better concurrency than SQLite. Even though SQLite is easier to set up for a demo, Postgres is what you'd actually use in production to keep customers' data safely separated.
 
 ### How do I make sure Tenant A never sees Tenant B's data?
+
 ---
 
 I didn't want to rely on developers remembering to add a `WHERE tenant_id = X` every time. Instead, I built a `BaseRepository` that handles this automatically behind the scenes. Every database query is forced to filter by the tenant ID, so isolation isn't an afterthought—it's built into the foundation.
 
 ### Why not let AI handle the matching?
+
 ---
 
 Matching money is too important for "hallucinations." I used a **deterministic scoring engine** (Heuristics) instead. It gives you a score from 0 to 100 based on:
@@ -119,11 +122,13 @@ Matching money is too important for "hallucinations." I used a **deterministic s
 We use AI (Claude 3.5 Sonnet) specifically to **explain** the match to the user in plain English, which is where LLMs actually shine.
 
 ### What happens if the AI service is down?
+
 ---
 
 Reliability is key. If the Anthropic API is slow or the key is missing, the system doesn't crash. It falls back to a "deterministic explanation" based on those match scores I mentioned above. The user always gets an answer.
 
 ### How do I stop double-imports?
+
 ---
 
 If a user clicks "Import" twice by accident, the system checks the `X-Idempotency-Key` header. I hash the whole payload (SHA-256) so if the data is the same, we just return the previous result. If someone tries to re-use a key with different data, we catch it and return a `409 Conflict`.
@@ -131,14 +136,31 @@ If a user clicks "Import" twice by accident, the system checks the `X-Idempotenc
 ---
 
 ## 📂 How is the code organized?
+
 ---
 
-I kept things clean by separating the "Entry points" from the "Brain":
+I've followed a clean, layered architecture to keep the "Brain" separate from the "API":
 
-- **`api/`**: Where the REST and GraphQL magic happens.
-- **`services/`**: This is the "Brain" of the app. All the scoring logic and AI integration lives here.
-- **`repositories/`**: Handles the data. This is where the tenant isolation lives.
-- **`models/`**: Just the database schemas using SQLAlchemy 2.0.
+```text
+invoice-reconciliation/
+├── alembic/          # Database migration logic & history
+├── api/              # Entry points (Protocol layer)
+│   ├── rest/         # FastAPI routers & endpoints
+│   ├── graphql/      # Strawberry GQL schema & mutations
+│   └── schemas/      # Pydantic models for validation
+├── core/             # Shared config, DB sessions, & exceptions
+├── models/           # SQLAlchemy 2.0 database models
+├── repositories/     # Data Access Layer (Tenant isolation happens here)
+├── services/         # Business Logic (Reconciliation & AI logic)
+├── tests/            # Full test suite (Pytest)
+├── frontend/         # React dashboard for visual testing
+└── main.py           # Application entry point
+```
+
+- **`api/`**: This is the "Front Desk". Both REST and GraphQL live here and talk to the same services.
+- **`services/`**: The "Brain". This is where the scoring engine and AI orchestration live. It doesn't care if a request came from REST or GraphQl.
+- **`repositories/`**: The "Gatekeeper". It enforces tenant isolation on every query so you don't leak data.
+- **`models/`**: The "Blueprint". Just the database structure.
 
 ---
 
