@@ -7,10 +7,10 @@ cd "$(dirname "$0")"
 source venv/bin/activate
 
 # Start the server
-echo "🚀 Starting Invoice Reconciliation API..."
-echo "📖 API Docs: http://localhost:8000/docs"
-echo "🔵 GraphQL: http://localhost:8000/api/graphql"
-echo "💚 Health: http://localhost:8000/health"
+echo "Starting Invoice Reconciliation API..."
+echo "API Docs: http://localhost:8000/docs"
+echo "GraphQL: http://localhost:8000/api/graphql"
+echo "Health: http://localhost:8000/health"
 echo ""
 echo "Press Ctrl+C to stop"
 echo ""

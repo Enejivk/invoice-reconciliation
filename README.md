@@ -27,8 +27,14 @@ multi-tenant API built with Python 3.13, FastAPI, and Strawberry GraphQL. It mat
    ```
 
 3. **Start the server**
+
    ```bash
+   # macOS/Linux:
    source venv/bin/activate
+
+   # Windows:
+   venv\Scripts\activate
+
    uvicorn main:app --reload
    ```
 
@@ -39,13 +45,17 @@ If you don't want to use the script, here is the blow-by-blow:
 ```bash
 # 1. Environment
 python -m venv venv
-source venv/bin/activate
+
+# Activate venv
+# macOS/Linux: source venv/bin/activate
+# Windows: venv\Scripts\activate
 
 # 2. Dependencies
 pip install -e ".[dev]"
 
 # 3. Configuration
-cp .env.example .env
+# macOS/Linux: cp .env.example .env
+# Windows: copy .env.example .env
 
 # 4. Infrastructure
 docker-compose up -d
