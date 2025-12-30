@@ -1,0 +1,272 @@
+{
+  "info": {
+    "_postman_id": "invoice-reconciliation-api",
+    "name": "Invoice Reconciliation API",
+    "description": "Postman collection for testing the multi-tenant Invoice Reconciliation API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Tenants",
+      "item": [
+        {
+          "name": "Create Tenant",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"name\": \"Acme Corp\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/rest/tenants",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rest", "tenants"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Tenants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rest/tenants",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rest", "tenants"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Invoices",
+      "item": [
+        {
+          "name": "Create Invoice",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"amount\": 1250.00,\n    \"currency\": \"USD\",\n    \"invoice_number\": \"INV-2024-001\",\n    \"description\": \"Cloud Infrastructure - January\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/rest/tenants/1/invoices",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rest", "tenants", "1", "invoices"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Invoices",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rest/tenants/1/invoices?status=open",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rest", "tenants", "1", "invoices"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "open"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Bank Transactions",
+      "item": [
+        {
+          "name": "Import Transactions",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Idempotency-Key",
+                "value": "import-unique-key-123"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"transactions\": [\n        {\n            \"external_id\": \"TXN-789\",\n            \"posted_at\": \"2024-01-20T10:00:00Z\",\n            \"amount\": 1250.00,\n            \"currency\": \"USD\",\n            \"description\": \"Payment for INV-2024-001\"\n        }\n    ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/rest/tenants/1/bank-transactions/import",
+              "host": ["{{base_url}}"],
+              "path": [
+                "api",
+                "rest",
+                "tenants",
+                "1",
+                "bank-transactions",
+                "import"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Reconciliation",
+      "item": [
+        {
+          "name": "Run Reconciliation",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rest/tenants/1/reconcile?min_score=50.0",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rest", "tenants", "1", "reconcile"],
+              "query": [
+                {
+                  "key": "min_score",
+                  "value": "50.0"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Explain Match",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rest/tenants/1/reconcile/explain?invoice_id=1&transaction_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rest", "tenants", "1", "reconcile", "explain"],
+              "query": [
+                {
+                  "key": "invoice_id",
+                  "value": "1"
+                },
+                {
+                  "key": "transaction_id",
+                  "value": "1"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Confirm Match",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/rest/tenants/1/matches/1/confirm",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rest", "tenants", "1", "matches", "1", "confirm"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "GraphQL",
+      "item": [
+        {
+          "name": "Introspection",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query { __schema { types { name } } }",
+                "variables": ""
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["api", "graphql"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "List Invoices (GQL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query GetInvoices($tenantId: Int!) {\n  invoices(tenantId: $tenantId) {\n    id\n    amount\n    status\n    invoiceNumber\n  }\n}",
+                "variables": "{\n    \"tenantId\": 1\n}"
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/graphql",
+              "host": ["{{base_url}}"],
+              "path": ["api", "graphql"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [""]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:8000",
+      "type": "string"
+    }
+  ]
+}
