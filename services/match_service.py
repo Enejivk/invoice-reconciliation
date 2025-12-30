@@ -58,3 +58,12 @@ class MatchService:
             raise MatchNotFoundError(match_id)
         return match
 
+    async def get_confirmed_match_for_invoice(self, tenant_id: int, invoice_id: int) -> Match:
+        """Get the confirmed match for an invoice."""
+        matches = await self.repository.list(
+            tenant_id=tenant_id,
+            filters={"invoice_id": invoice_id, "status": "confirmed"},
+            limit=1,
+        )
+        return matches[0] if matches else None
+

@@ -115,3 +115,13 @@ class BankTransactionService:
         """Get transactions that haven't been matched."""
         return await self.repository.get_unmatched_transactions(tenant_id)
 
+    async def delete_transaction(self, tenant_id: int, transaction_id: int) -> None:
+        """Delete a bank transaction."""
+        transaction = await self.repository.get_by_id(tenant_id, transaction_id)
+        if not transaction:
+            from core.exceptions import NotFoundError
+            raise NotFoundError(f"Bank transaction {transaction_id} not found")
+        
+        await self.repository.delete(transaction)
+        await self.repository.db.flush()
+

@@ -10,6 +10,7 @@ from api.schemas.invoice import (
     InvoiceListResponse,
     InvoiceFilters,
 )
+from api.schemas.match import MatchResponse
 
 router = APIRouter(prefix="/tenants/{tenant_id}/invoices", tags=["invoices"])
 
@@ -84,4 +85,18 @@ async def delete_invoice(
     service = InvoiceService(db)
     await service.delete_invoice(tenant_id, invoice_id)
     await db.commit()
+
+
+@router.get("/{invoice_id}/match", response_model=MatchResponse | None)
+async def get_invoice_match(
+    tenant_id: int = Path(..., description="Tenant ID"),
+    invoice_id: int = Path(..., description="Invoice ID"),
+    db: AsyncSession = Depends(get_db),
+):
+    """Get the confirmed match for an invoice."""
+    from services.match_service import MatchService
+
+    service = MatchService(db)
+    match = await service.get_confirmed_match_for_invoice(tenant_id, invoice_id)
+    return match
 

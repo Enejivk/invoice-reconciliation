@@ -18,9 +18,24 @@ async def reconcile(
     min_score: float = Query(default=50.0, ge=0.0, le=100.0, description="Minimum match score"),
     db: AsyncSession = Depends(get_db),
 ):
-    """Run reconciliation and return match candidates."""
+    """Run reconciliation and return all current match candidates."""
     service = ReconciliationService(db)
-    matches = await service.reconcile(tenant_id, min_score=min_score)
+    # Run the reconciliation algorithm
+    await service.reconcile(tenant_id, min_score=min_score)
+    
+    # Get all current proposed matches (including existing ones)
+    matches = await service.get_match_candidates(tenant_id)
+    return ReconciliationResponse(matches=matches, count=len(matches))
+
+
+@router.get("/candidates", response_model=ReconciliationResponse)
+async def list_candidates(
+    tenant_id: int = Path(..., description="Tenant ID"),
+    db: AsyncSession = Depends(get_db),
+):
+    """List existing match candidates without running reconciliation."""
+    service = ReconciliationService(db)
+    matches = await service.get_match_candidates(tenant_id)
     return ReconciliationResponse(matches=matches, count=len(matches))
 
 
@@ -44,6 +59,7 @@ async def explain_reconciliation(
     
     # Get vendor if exists
     vendor_name = None
+    vendor = None
     if invoice.vendor_id:
         from sqlalchemy import select
         from models.database import Vendor

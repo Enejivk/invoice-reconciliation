@@ -43,3 +43,20 @@ class BankTransactionImportResponse(BaseModel):
     count: int
     transaction_ids: list[int]
 
+
+class BankTransactionListResponse(BaseModel):
+    """Schema for list of bank transactions."""
+
+    transactions: list[BankTransactionResponse]
+    total: int
+
+
+class BankTransactionFilters(BaseModel):
+    """Schema for bank transaction filters."""
+
+    currency: Optional[str] = None
+    min_amount: Optional[Decimal] = None
+    max_amount: Optional[Decimal] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+

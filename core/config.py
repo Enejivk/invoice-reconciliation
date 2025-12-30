@@ -17,7 +17,9 @@ class Settings(BaseSettings):
     # AI Configuration
     openai_api_key: str = ""
     openai_model: str = "gpt-4-turbo-preview"
-    ai_enabled: bool = False
+    anthropic_api_key: str = ""
+    anthropic_model: str = "claude-3-5-sonnet-20240620"
+    ai_enabled: bool = True
 
     # Application
     debug: bool = True

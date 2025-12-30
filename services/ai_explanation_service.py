@@ -15,9 +15,9 @@ class AIExplanationService:
     """Service for generating AI-powered explanations with fallback."""
 
     def __init__(self):
-        self.enabled = settings.ai_enabled and bool(settings.openai_api_key)
-        self.api_key = settings.openai_api_key
-        self.model = settings.openai_model
+        self.enabled = settings.ai_enabled and bool(settings.anthropic_api_key)
+        self.api_key = settings.anthropic_api_key
+        self.model = settings.anthropic_model
 
     async def explain_match(
         self,
@@ -47,11 +47,11 @@ class AIExplanationService:
         score: Decimal,
         vendor_name: Optional[str],
     ) -> dict[str, str]:
-        """Call LLM API for explanation."""
+        """Call Anthropic API for explanation."""
         try:
-            from openai import AsyncOpenAI
+            from anthropic import AsyncAnthropic
 
-            client = AsyncOpenAI(api_key=self.api_key)
+            client = AsyncAnthropic(api_key=self.api_key)
 
             # Build context (only tenant-authorized data)
             context = {
@@ -94,20 +94,19 @@ Provide a concise explanation (2-6 sentences) of why this is or isn't a good mat
 3. Any matching identifiers or descriptions
 4. Overall confidence level
 
-Return a JSON object with 'explanation' (string) and 'confidence' (string: 'high', 'medium', or 'low').
-"""
+Return only valid JSON with 'explanation' (string) and 'confidence' (string: 'high', 'medium', or 'low')."""
 
-            response = await client.chat.completions.create(
+            response = await client.messages.create(
                 model=self.model,
+                max_tokens=300,
+                temperature=0.3,
+                system="You are a financial reconciliation assistant. Return only valid JSON.",
                 messages=[
-                    {"role": "system", "content": "You are a financial reconciliation assistant. Return only valid JSON."},
                     {"role": "user", "content": prompt},
                 ],
-                temperature=0.3,
-                max_tokens=300,
             )
 
-            content = response.choices[0].message.content
+            content = response.content[0].text
             result = json.loads(content)
 
             return {
