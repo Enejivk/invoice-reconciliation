@@ -37,7 +37,8 @@ class MatchService:
 
         # Update match
         match.status = "confirmed"
-        match.confirmed_at = datetime.utcnow()
+        from datetime import timezone
+        match.confirmed_at = datetime.now(timezone.utc)
         await self.repository.update(match)
 
         # Update invoice status

@@ -7,7 +7,7 @@ from services.reconciliation_service import ReconciliationService
 from services.ai_explanation_service import AIExplanationService
 from services.invoice_service import InvoiceService
 from services.bank_transaction_service import BankTransactionService
-from api.schemas.match import ReconciliationResponse, ExplanationResponse
+from api.schemas.match import ReconciliationResponse, ExplanationResponse, MatchResponse
 
 router = APIRouter(prefix="/tenants/{tenant_id}/reconcile", tags=["reconciliation"])
 

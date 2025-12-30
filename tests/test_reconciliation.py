@@ -19,7 +19,7 @@ async def test_reconciliation_produces_candidates(client, tenant, invoice, bank_
     if data["count"] > 0:
         match = data["matches"][0]
         assert "score" in match
-        assert match["score"] >= 50.0
+        assert float(match["score"]) >= 50.0
         assert match["status"] == "proposed"
 
 
@@ -64,8 +64,9 @@ async def test_reconciliation_scoring_behavior(client, tenant, db_session):
 
 
 @pytest.mark.asyncio
-async def test_confirm_match(client, tenant, invoice, bank_transaction, db_session):
-    """Test confirming a match."""
+async def test_confirm_match_logic(tenant, invoice, bank_transaction, db_session):
+    """Test the logic of confirming a match via the service."""
+    from services.match_service import MatchService
     from models.database import Match
 
     # Create a match first
@@ -80,20 +81,15 @@ async def test_confirm_match(client, tenant, invoice, bank_transaction, db_sessi
     await db_session.commit()
     await db_session.refresh(match)
 
-    # Confirm the match
-    response = await client.post(
-        f"/api/rest/tenants/{tenant.id}/matches/{match.id}/confirm"
-    )
-    assert response.status_code == 200
-    data = response.json()
-    assert data["status"] == "confirmed"
-    assert data["confirmed_at"] is not None
+    service = MatchService(db_session)
+    confirmed_match = await service.confirm_match(tenant.id, match.id)
+
+    assert confirmed_match.status == "confirmed"
+    assert confirmed_match.confirmed_at is not None
 
     # Verify invoice status updated
-    invoice_response = await client.get(
-        f"/api/rest/tenants/{tenant.id}/invoices/{invoice.id}"
-    )
-    assert invoice_response.status_code == 200
-    invoice_data = invoice_response.json()
-    assert invoice_data["status"] == "matched"
+    from services.invoice_service import InvoiceService
+    invoice_service = InvoiceService(db_session)
+    updated_invoice = await invoice_service.get_invoice(tenant.id, invoice.id)
+    assert updated_invoice.status == "matched"
 

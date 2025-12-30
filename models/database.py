@@ -10,6 +10,7 @@ from sqlalchemy import (
     DateTime,
     ForeignKey,
     Index,
+    Integer,
     Numeric,
     String,
     Text,
@@ -26,7 +27,7 @@ class Tenant(Base):
 
     __tablename__ = "tenants"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
@@ -47,7 +48,7 @@ class Vendor(Base):
 
     __tablename__ = "vendors"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     tenant_id = Column(BigInteger, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     name = Column(String(255), nullable=False)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
@@ -71,7 +72,7 @@ class Invoice(Base):
 
     __tablename__ = "invoices"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     tenant_id = Column(BigInteger, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     vendor_id = Column(BigInteger, ForeignKey("vendors.id", ondelete="SET NULL"), nullable=True)
     invoice_number = Column(String(255), nullable=True)
@@ -111,7 +112,7 @@ class BankTransaction(Base):
 
     __tablename__ = "bank_transactions"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     tenant_id = Column(BigInteger, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     external_id = Column(String(255), nullable=True)  # External system ID for idempotency
     posted_at = Column(DateTime(timezone=True), nullable=False)
@@ -142,7 +143,7 @@ class Match(Base):
 
     __tablename__ = "matches"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     tenant_id = Column(BigInteger, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     invoice_id = Column(BigInteger, ForeignKey("invoices.id", ondelete="CASCADE"), nullable=False)
     bank_transaction_id = Column(
@@ -184,7 +185,7 @@ class IdempotencyKey(Base):
 
     __tablename__ = "idempotency_keys"
 
-    id = Column(BigInteger, primary_key=True, autoincrement=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
     tenant_id = Column(BigInteger, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False)
     key = Column(String(255), nullable=False)
     endpoint = Column(String(255), nullable=False)
