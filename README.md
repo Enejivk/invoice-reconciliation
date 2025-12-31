@@ -2,6 +2,10 @@
 
 multi-tenant API built with Python 3.13, FastAPI, and Strawberry GraphQL. It matches invoices to bank transactions using deterministic scoring and provides AI explanations.
 
+## Demo
+
+https://github.com/user-attachments/assets/f88f0b9c-9da3-4810-884f-b788c2439c64
+
 ## Get Started
 
 > 🚨 **CRITICAL WARNING: CHECK DOCKER STATUS**
