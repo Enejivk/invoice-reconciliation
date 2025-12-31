@@ -4,6 +4,14 @@ multi-tenant API built with Python 3.13, FastAPI, and Strawberry GraphQL. It mat
 
 ## Get Started
 
+> 🚨 **CRITICAL WARNING: CHECK DOCKER STATUS**
+>
+> You **MUST** ensure that Docker is up and running on your machine **before** attempting to start the backend.
+>
+> **The Consequence:** We run the PostgreSQL database inside a Docker container. If Docker is not running, the application **WILL FAIL** with a Database Connection Error.
+>
+> **If you see a Database Error:** It is almost certainly because Docker is not running. Please start Docker and try again.
+
 ### System Requirements
 
 - **Python 3.13+**
