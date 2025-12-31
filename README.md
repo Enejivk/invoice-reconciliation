@@ -184,7 +184,7 @@ I've covered the critical paths: Creating invoices, bulk importing transactions 
 
 ---
 
-## 🛠 Troubleshooting
+## Troubleshooting
 
 - **Database**: If it won't connect, make sure Docker is running (`docker-compose ps`).
 - **Migrations**: If you need to start fresh, just run `docker-compose down -v` to wipe the volumes and restart.

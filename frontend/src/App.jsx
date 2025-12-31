@@ -166,7 +166,14 @@ function App() {
       });
       await loadTransactions();
     } catch (error) {
-      showMessage("Failed to import transaction", "error");
+      if (error.response && error.response.status === 409) {
+        showMessage(
+          "Duplicate details detected. This transaction has already been imported.",
+          "error"
+        );
+      } else {
+        showMessage("Failed to import transaction", "error");
+      }
     } finally {
       setLoading(false);
     }

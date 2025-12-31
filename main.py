@@ -59,6 +59,31 @@ async def health():
     return {"status": "healthy"}
 
 
+# Exception handlers
+from fastapi import Request
+from fastapi.responses import JSONResponse
+from sqlalchemy.exc import IntegrityError
+
+
+@app.exception_handler(IntegrityError)
+async def integrity_error_handler(request: Request, exc: IntegrityError):
+    """Handle database integrity errors (unique constraints)."""
+    # Check for unique violation (postgres specific, but generic enough for now)
+    # The string check is a safety net if pgcode is not available
+    if "unique constraint" in str(exc.orig).lower() or (
+        hasattr(exc.orig, "pgcode") and exc.orig.pgcode == "23505"
+    ):
+        return JSONResponse(
+            status_code=409,
+            content={"detail": "Duplicate entry detected. This record already exists."},
+        )
+    
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error (Database Integrity)"},
+    )
+
+
 if __name__ == "__main__":
     import uvicorn
 

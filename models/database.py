@@ -193,7 +193,7 @@ class IdempotencyKey(Base):
     response_data = Column(Text, nullable=True)  # JSON response cached
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    # Unique constraint: same tenant + key can only exist once
+    # Unique constraint: same tenant + %key can only exist once
     __table_args__ = (
         UniqueConstraint("tenant_id", "key", name="uq_idempotency_tenant_key"),
         Index("idx_idempotency_tenant_key", "tenant_id", "key"),
